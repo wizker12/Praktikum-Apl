@@ -10,14 +10,15 @@ struct Tiket {
     int totalHarga;
 };
 
-// Deklarasi fungsi dan prosedur
+// Deklarasi fungsi dan prosedur dengan pointer
 bool loginSystem();
 void tampilkanMenu();
-void tampilkanStasiunRute(const string stasiun[], const string rute[], const int jumlahTiketStasiun[], const int harga[], int JUMLAH_STASIUN);
-void tampilkanTiketDipesan(const Tiket tiket[], const string stasiun[], const string rute[], int panjang);
-void tambahTiket(Tiket tiket[], int jumlahTiketStasiun[], int harga[], int& panjang, const string stasiun[], const string rute[], int MAX_TIKET, int JUMLAH_STASIUN);
-void ubahTiket(Tiket tiket[], const int harga[], int panjang, const string stasiun[], const string rute[]);
-void hapusTiket(Tiket tiket[], int jumlahTiketStasiun[], int& panjang, const string stasiun[], const string rute[]);
+void tampilkanStasiunRute(const string* stasiun, const string* rute, const int* jumlahTiketStasiun, const int* harga, int JUMLAH_STASIUN);
+void tampilkanTiketDipesan(const Tiket* tiket, const string* stasiun, const string* rute, int panjang);
+void tambahTiket(Tiket* tiket, int* jumlahTiketStasiun, const int* harga, int* panjang, const string* stasiun, const string* rute, int MAX_TIKET, int JUMLAH_STASIUN);
+void ubahTiket(Tiket* tiket, const int* harga, int panjang, const string* stasiun, const string* rute);
+void hapusTiket(Tiket* tiket, int* jumlahTiketStasiun, int* panjang, const string* stasiun, const string* rute);
+void hitungTotalHarga(Tiket* tiket, const int* harga); // Fungsi baru dengan dereference
 
 int main() {
     const int MAX_TIKET = 100; 
@@ -54,13 +55,13 @@ int main() {
                 tampilkanTiketDipesan(tiket, stasiun, rute, panjang);
                 break;
             case 3:
-                tambahTiket(tiket, jumlahTiketStasiun, harga, panjang, stasiun, rute, MAX_TIKET, JUMLAH_STASIUN);
+                tambahTiket(tiket, jumlahTiketStasiun, harga, &panjang, stasiun, rute, MAX_TIKET, JUMLAH_STASIUN);
                 break;
             case 4:
                 ubahTiket(tiket, harga, panjang, stasiun, rute);
                 break;
             case 5:
-                hapusTiket(tiket, jumlahTiketStasiun, panjang, stasiun, rute);
+                hapusTiket(tiket, jumlahTiketStasiun, &panjang, stasiun, rute);
                 break;
             case 6:
                 cout << "Terima kasih sudah menggunakan program, sampai berjumpa kembali!" << endl;
@@ -79,7 +80,6 @@ int main() {
 
     return 0;
 }
-
 
 bool loginSystem() {
     string namaUser, nimUser;
@@ -116,19 +116,19 @@ void tampilkanMenu() {
     cout << "6. Keluar" << endl;
 }
 
-void tampilkanStasiunRute(const string stasiun[], const string rute[], const int jumlahTiketStasiun[], const int harga[], int JUMLAH_STASIUN) {
+void tampilkanStasiunRute(const string* stasiun, const string* rute, const int* jumlahTiketStasiun, const int* harga, int JUMLAH_STASIUN) {
     cout << "Daftar Stasiun dan Rute:" << endl;
     cout << "-----------------------------" << endl;
     for (int i = 0; i < JUMLAH_STASIUN; i++) {
-        cout << "Stasiun: " << stasiun[i] << endl;
-        cout << "Rute: " << rute[i] << endl;
-        cout << "Jumlah Tiket Tersedia: " << jumlahTiketStasiun[i] << endl;
-        cout << "Harga: Rp " << harga[i] << endl;
+        cout << "Stasiun: " << *(stasiun + i) << endl;
+        cout << "Rute: " << *(rute + i) << endl;
+        cout << "Jumlah Tiket Tersedia: " << *(jumlahTiketStasiun + i) << endl;
+        cout << "Harga: Rp " << *(harga + i) << endl;
         cout << "-----------------------------" << endl;
     }
 }
 
-void tampilkanTiketDipesan(const Tiket tiket[], const string stasiun[], const string rute[], int panjang) {
+void tampilkanTiketDipesan(const Tiket* tiket, const string* stasiun, const string* rute, int panjang) {
     if (panjang == 0) {
         cout << "Belum ada tiket yang dipesan." << endl;
     } else {
@@ -136,40 +136,40 @@ void tampilkanTiketDipesan(const Tiket tiket[], const string stasiun[], const st
         cout << "-----------------------------" << endl;
         for (int i = 0; i < panjang; i++) {
             cout << "Tiket ke-" << i + 1 << ":" << endl;
-            cout << "Nama Penumpang: " << tiket[i].namaPenumpang << endl;
-            cout << "Stasiun: " << stasiun[tiket[i].stasiunDipilih] << endl;
-            cout << "Rute: " << rute[tiket[i].stasiunDipilih] << endl;
-            cout << "Jumlah Tiket: " << tiket[i].jumlahTiket << endl;
-            cout << "Total Harga: Rp " << tiket[i].totalHarga << endl;
+            cout << "Nama Penumpang: " << (tiket + i)->namaPenumpang << endl;
+            cout << "Stasiun: " << *(stasiun + (tiket + i)->stasiunDipilih) << endl;
+            cout << "Rute: " << *(rute + (tiket + i)->stasiunDipilih) << endl;
+            cout << "Jumlah Tiket: " << (tiket + i)->jumlahTiket << endl;
+            cout << "Total Harga: Rp " << (tiket + i)->totalHarga << endl;
             cout << "-----------------------------" << endl;
         }
     }
 }
 
-void tambahTiket(Tiket tiket[], int jumlahTiketStasiun[], int harga[], int& panjang, const string stasiun[], const string rute[], int MAX_TIKET, int JUMLAH_STASIUN) {
-    if (panjang < MAX_TIKET) {
+void tambahTiket(Tiket* tiket, int* jumlahTiketStasiun, const int* harga, int* panjang, const string* stasiun, const string* rute, int MAX_TIKET, int JUMLAH_STASIUN) {
+    if (*panjang < MAX_TIKET) {
         int index;
         cout << "Pilih Stasiun:" << endl;
         for (int i = 0; i < JUMLAH_STASIUN; i++) {
-            cout << i + 1 << ". " << stasiun[i] << " (" << rute[i] << ")" << endl;
+            cout << i + 1 << ". " << *(stasiun + i) << " (" << *(rute + i) << ")" << endl;
         }
         cout << "Masukkan nomor stasiun: ";
         cin >> index;
         cin.ignore();
 
         if (index > 0 && index <= JUMLAH_STASIUN) {
-            if (jumlahTiketStasiun[index - 1] > 0) {
+            if (*(jumlahTiketStasiun + index - 1) > 0) {
                 cout << "Masukkan Nama Penumpang: ";
-                getline(cin, tiket[panjang].namaPenumpang);
+                getline(cin, (tiket + *panjang)->namaPenumpang);
                 cout << "Masukkan Jumlah Tiket: ";
-                cin >> tiket[panjang].jumlahTiket;
+                cin >> (tiket + *panjang)->jumlahTiket;
                 cin.ignore();
 
-                if (tiket[panjang].jumlahTiket <= jumlahTiketStasiun[index - 1]) {
-                    tiket[panjang].stasiunDipilih = index - 1;
-                    tiket[panjang].totalHarga = tiket[panjang].jumlahTiket * harga[index - 1];
-                    jumlahTiketStasiun[index - 1] -= tiket[panjang].jumlahTiket;
-                    panjang++;
+                if ((tiket + *panjang)->jumlahTiket <= *(jumlahTiketStasiun + index - 1)) {
+                    (tiket + *panjang)->stasiunDipilih = index - 1;
+                    hitungTotalHarga(tiket + *panjang, harga + index - 1); // Menggunakan fungsi dereference
+                    *(jumlahTiketStasiun + index - 1) -= (tiket + *panjang)->jumlahTiket;
+                    (*panjang)++;
                     cout << "Tiket berhasil ditambahkan!" << endl;
                 } else {
                     cout << "Jumlah tiket tidak mencukupi." << endl;
@@ -185,7 +185,7 @@ void tambahTiket(Tiket tiket[], int jumlahTiketStasiun[], int harga[], int& panj
     }
 }
 
-void ubahTiket(Tiket tiket[], const int harga[], int panjang, const string stasiun[], const string rute[]) {
+void ubahTiket(Tiket* tiket, const int* harga, int panjang, const string* stasiun, const string* rute) {
     if (panjang == 0) {
         cout << "Belum ada tiket untuk diubah." << endl;
         return;
@@ -199,38 +199,43 @@ void ubahTiket(Tiket tiket[], const int harga[], int panjang, const string stasi
 
     if (index > 0 && index <= panjang) {
         cout << "Masukkan Nama Penumpang baru: ";
-        getline(cin, tiket[index - 1].namaPenumpang);
+        getline(cin, (tiket + index - 1)->namaPenumpang);
         cout << "Masukkan Jumlah Tiket baru: ";
-        cin >> tiket[index - 1].jumlahTiket;
+        cin >> (tiket + index - 1)->jumlahTiket;
         cin.ignore();
 
-        tiket[index - 1].totalHarga = tiket[index - 1].jumlahTiket * harga[tiket[index - 1].stasiunDipilih];
+        hitungTotalHarga(tiket + index - 1, harga + (tiket + index - 1)->stasiunDipilih); // Menggunakan fungsi dereference
         cout << "Tiket berhasil diubah!" << endl;
     } else {
         cout << "Nomor tiket tidak valid." << endl;
     }
 }
 
-void hapusTiket(Tiket tiket[], int jumlahTiketStasiun[], int& panjang, const string stasiun[], const string rute[]) {
-    if (panjang == 0) {
+void hapusTiket(Tiket* tiket, int* jumlahTiketStasiun, int* panjang, const string* stasiun, const string* rute) {
+    if (*panjang == 0) {
         cout << "Belum ada tiket untuk dihapus." << endl;
         return;
     }
 
     int index;
-    tampilkanTiketDipesan(tiket, stasiun, rute, panjang);
+    tampilkanTiketDipesan(tiket, stasiun, rute, *panjang);
     cout << "Masukkan nomor tiket yang akan dihapus: ";
     cin >> index;
     cin.ignore();
 
-    if (index > 0 && index <= panjang) {
-        jumlahTiketStasiun[tiket[index - 1].stasiunDipilih] += tiket[index - 1].jumlahTiket;
-        for (int i = index - 1; i < panjang - 1; i++) {
-            tiket[i] = tiket[i + 1];
+    if (index > 0 && index <= *panjang) {
+        *(jumlahTiketStasiun + (tiket + index - 1)->stasiunDipilih) += (tiket + index - 1)->jumlahTiket;
+        for (int i = index - 1; i < *panjang - 1; i++) {
+            *(tiket + i) = *(tiket + i + 1);
         }
-        panjang--;
+        (*panjang)--;
         cout << "Tiket berhasil dihapus!" << endl;
     } else {
         cout << "Nomor tiket tidak valid. Harap masukkan dengan benar." << endl;
     }
+}
+
+// Fungsi dengan parameter dereference
+void hitungTotalHarga(Tiket* tiket, const int* harga) {
+    tiket->totalHarga = tiket->jumlahTiket * (*harga);
 }
